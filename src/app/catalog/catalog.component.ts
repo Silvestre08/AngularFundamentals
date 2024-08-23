@@ -196,4 +196,7 @@ filter: string= '';
   ? this.products 
   : this.products.filter((product)=> product.category === this.filter)
  }
+ getDiscountedClasses(product: IProduct){
+  return  {strikeThrough: product.discount >0}
+ }
 }

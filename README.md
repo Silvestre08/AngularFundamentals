@@ -1,5 +1,6 @@
 # JoesRobotShop
-The node.js version used in this repo is 18.10.0. Use the following commands to setup node for this project 
+
+The node.js version used in this repo is 18.10.0. Use the following commands to setup node for this project
 
 ```
 nvm install 18.10.0
@@ -68,11 +69,13 @@ Some occur only once, some multiple times:
 ![](doc/lifecyclehooks.PNG)
 
 Some of the hooks are more used than others. The hooks that are used the most are:
+
 1. OnChanges - execute code when data changes.
 1. OnInit - typically to fetch data.
 1. OnDestroy - used for cleanup to avoid memory leaks.
 
 We implement the hook on the component class by adding the 3 pieces:
+
 1. Import the hook
 1. Implement the interface
 1. Add the method (do not forget to add the prefix ng).
@@ -80,37 +83,46 @@ We implement the hook on the component class by adding the 3 pieces:
 # Angular template syntax
 
 Interpolation is the process of putting expressions into our HTML that angular will evaluate and convert into HTML when it is rendered. Example:
+
 ```
 <h1> 2 + 2 = {{2+2}} </h1>
 ```
+
 Angular will render this as 2 + 2 = 4
 We have some limitations though like: {{Math.Round(2+2)}}. This wont compile.Angular does it on purpose to limit the javascript expressions in HTML, The code should reside mostly in the component class. The curly braces is basic interpolation that we will use to bind data to HTML.
 Like we do here:
+
 ```
 <div class="description">{{product.description}}</div>
 ```
+
 When the property changes the UI gets updated.
 
 Check here what to do in the case of an image path generated dynamically:
+
 ```
 <img src="{{'assets/images/robot-parts/'+ product.imageName}}" alt="" />
 ```
-So far we've seen interpolation for binding. Let's see attribute binding 
+
+So far we've seen interpolation for binding. Let's see attribute binding
 [alt]="product.name"
 when wrapping the html attribute in square brackets, we can use the javascript expression directly.
-Lets see the image example with attribute binding: 
+Lets see the image example with attribute binding:
 [src]="'assets/images/robot-parts/'+ product.imageName"
 Important to not that the square brackets generate a one way binding from the component to the template. So if the user types in a text box, that would not change the data in the component.
 To cleanup HTML we can use functions:
 [src]="getImageUrl(product)"
 See in the component class.
+
 ```
  getImageUrl(product: IProduct){
   return '/assets/images/robot-parts/' + product.imageName;
  }
 ```
-Lets now use the *ngFor directive to render a list of products. The * means that this directives add or remove html on a page.
+
+Lets now use the _ngFor directive to render a list of products. The _ means that this directives add or remove html on a page.
 Lets change the <li> html element to render a list of products (this list in production would come from an API).
+
 ```
     <ul class="products">
       <li class="product-item" *ngFor="let product of products">
@@ -131,19 +143,22 @@ Lets change the <li> html element to render a list of products (this list in pro
       </li>
     </ul>
 ```
+
 The product list gets generated. Cool!!!
 
 What about bindings the other way around?
 Lets see the on click event:
 
 Notice we use normal brackets. Normal brackets mean the direction is going from the template to the component, so the opposite direction of the square brackets.
-See     <a class="button" (click)="filter='Bases'">Bases</a>. We set a filter variable in our component and we add a new method to filter the list of products based on that filter:
+See <a class="button" (click)="filter='Bases'">Bases</a>. We set a filter variable in our component and we add a new method to filter the list of products based on that filter:
+
   <li class="product-item" *ngFor="let product of getFilteredProducts()">
 
-What about numm objects? Angular provide the *safe navigation operator* to prevent errors while rendering the page, *?*:
+What about numm objects? Angular provide the _safe navigation operator_ to prevent errors while rendering the page, _?_:
+
 <div class="name">{{product?.name}}</div>
 
-What about showing conditional elements in the page? We use the *ngIf directive. This example will show the discounted price, if an item has discount or the full price if the item does have discount:
+What about showing conditional elements in the page? We use the \*ngIf directive. This example will show the discounted price, if an item has discount or the full price if the item does have discount:
 
 ```
           <div class="price">
@@ -152,7 +167,7 @@ What about showing conditional elements in the page? We use the *ngIf directive.
             ${{ (product.price * (1 - product.discount)).toFixed(2) }}
 ```
 
-*ngSwitch is also a directive similar to *ngIf . We can also hide content with [Hidden] attributes but it is rare. 
+*ngSwitch is also a directive similar to *ngIf . We can also hide content with [Hidden] attributes but it is rare.
 It should only be used when the content is very complex and we should avoid rendering multiple times.
 
 Pipes can be used to format data like currency, dates, percentages, etc..
@@ -163,4 +178,76 @@ Lets see an example of formatting a price:
 ```
 
 # Styling Angular Components
-*styles.css* is created by default and it is the main CSS file for the entire application. It is where we put in all the styles for our application
+
+_styles.css_ is created by default and it is the main CSS file for the entire application. It is where we put in all the styles for our application.
+Example of using 2 html classes in one control: <a class="button bold">
+
+Angular gives an option of CSS encapsulation (thos does not come natively with css).
+It handles some of the problems CSS has in general, when developers apply style to broadly or problems with styles that exist that we dont know if they are used anymore or not.
+Lets see, if we go the catalog component and apply thos style to the anchor elements:
+
+```
+a {
+ font-weight: bold;
+}
+```
+
+This anchor style will be applied to all the anchor elements of the individual component. Not to the whole application. This is CSS encapsulation at component level.
+
+We can include styles directly on the component class and not use a separate file for the component, but people do that almost never.
+
+Now lets imagine we want to strike through the price of items that have discount greater than 0. We want to show the full price with a dash and the discounted price, like this:
+
+![](doc/discountPrice.png)
+
+There are several ways to do it. First, we have a class in css like this:
+
+```
+.strikeThrough
+{
+  text-decoration: line-through;
+  font-size: 18;
+}
+```
+
+Then we can use a directive similar like we have seen before:
+
+```
+<div [class.strikeThrough] ="product.discount >0">{{product.price | currency}}</div>
+```
+
+Here the class applied to this div element is the strithrough if the discount is greater than zero. This is called class binding.
+This can get a little bit wordy if we have lots of classes.
+An alternative is to use the ngClass binding.
+This way I can give it multiple classes, each with a unique boolean condition that can apply to this:
+
+```
+<div [ngClass] ="{strikethrough: product.discount >0}">{{product.price | currency}}</div>
+```
+
+We can actually also use a function:
+
+```
+<div [ngClass] ="getDiscountedClasses(product)">{{product.price | currency}}</div>
+```
+
+We would write the function in the component like this:
+
+```
+ getDiscountedClasses(product: IProduct){
+  return  {strikeThrough: product.discount >0}
+ }
+```
+
+Or we could just return the string of the class as well: return 'strikeThrough'
+Or multiple classes like : return 'strikeThrough bold', to apply multiple css classes. We can also just return array, so it is easier to add more classes.
+It is also possible to use _class and ngClass_ together.
+There is an analogous sort of feature for styles: ngStyle directive:
+[ngStyle]="{color : product.discount > 0? 'green' : ''}"
+Like the ngClass we could also transform this into a function.
+
+There CSS frameworks like Saas, bootstrap and Tailwind. Saas is a flag we can setup when starting a new angular project. Cool feature like nested CSS, etc. Out of scope of this training.
+
+# Communication between components
+
+Components can contain other components. Communication between components becomes a need, specially when they share same pieces of data.

@@ -251,3 +251,25 @@ There CSS frameworks like Saas, bootstrap and Tailwind. Saas is a flag we can se
 # Communication between components
 
 Components can contain other components. Communication between components becomes a need, specially when they share same pieces of data.
+This communication is accomplished through a pattern called _one-way dataflow_
+In _one-way dataflow_, the parent component contains the data, and it sends that data down to the child component. Example: a parent component might contain a list of costumers and a child component might display a single costumer.
+Then, for example, when we want to deactivate a costumer that is not done directly from the child component. Instead, the child component communicates the event back to its parent component, that would then execute the action that changes state.
+_one-way dataflow_: data goes down, events go up:
+![](doc/oneWayDataFlow.png)
+
+Coming to our example, on the catalog component lets extract the code inside the ng for list with a new product-details component.
+It is in the html file that we push down the data, by using binding:
+
+```
+      <li class="product-item" *ngFor="let product of getFilteredProducts()">
+       <bot-product-details [product] = "product"></bot-product-details>
+      </li>
+```
+
+As we can see, we have anew product details component that has a product attribute. It needs an input decorator on this attribute. Inputs in angular is a way to communicate from parent to child to push the data down:
+
+```
+export class ProductDetailsComponent {
+@Input() product! : IProduct;
+}
+```

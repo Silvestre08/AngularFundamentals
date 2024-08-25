@@ -9,6 +9,8 @@ import { IProduct } from './product.model';
 export class CatalogComponent {
 products: IProduct[]; // needs to be public to be accessed from the template.
 filter: string= '';
+cart: IProduct[] = [];
+
  constructor() {
   this.products = [
     {
@@ -187,10 +189,6 @@ filter: string= '';
   ];
  }
 
- getImageUrl(product: IProduct){
-  return '/assets/images/robot-parts/' + product.imageName;
- }
-
  getFilteredProducts(){
   return this.filter === '' 
   ? this.products 
@@ -198,5 +196,9 @@ filter: string= '';
  }
  getDiscountedClasses(product: IProduct){
   return  {strikeThrough: product.discount >0}
- }
+}
+addToCart(product: IProduct){
+  console.log(`product ${product.name} added to cart`)
+  this.cart.push(product)
+}
 }

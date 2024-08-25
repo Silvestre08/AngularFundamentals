@@ -266,10 +266,68 @@ It is in the html file that we push down the data, by using binding:
       </li>
 ```
 
-As we can see, we have anew product details component that has a product attribute. It needs an input decorator on this attribute. Inputs in angular is a way to communicate from parent to child to push the data down:
+As we can see, we have a new product details component that has a product attribute. It needs an input decorator on this attribute. Inputs in angular is a way to communicate from parent to child to push the data down:
+
+```
+export class ProductDetailsComponent {
+@Input() product! : IProduct; // input decorator directive
+}
+```
+
+Now lets see how the communication between child component and parent component happens. By refactoring the catalog component, we introduced a problem. The add to cart method on the product details component is not adding any items to the cart, because the cart belongs to the catalog component, which makes sense!
+
+We want to send an event to the catalog component, when the user presses the buy button on the product-details component and have the actual catalog component to do the job of adding the product to the cart.
+The first step to do that is to use an Output decorator and declare an event emitter:
 
 ```
 export class ProductDetailsComponent {
 @Input() product! : IProduct;
+@Output() buy = new EventEmitter(); // the EventEmitter type from angular
 }
 ```
+
+With those lines of code we create an event, and when the user clicks the buy button, the event is emitted:
+
+```
+ buyButtonClicked(product: IProduct){
+  this.buy.emit();
+}
+```
+
+We can send data in the emit method, but we do not needed because in the parent component, we have access to the product object through the ngFor directive:
+
+```
+    <ul class="products">
+      <li class="product-item" *ngFor="let product of getFilteredProducts()">
+       <bot-product-details [product] = "product" (buy)="addToCart(product)"></bot-product-details>
+      </li>
+    </ul>
+```
+
+The previous code is from the catalog component, the parent component. We handle the event like we handle all other events, like button clicks. The catalog takes care of adding the item to the cart.
+This refactoring made the catalog component HTML way smaller. In production apps, child components improve radability by a lot.
+
+# Creating Services
+
+Services is where the business logic goes. Examples: calculate tax rate service, etc..
+It is where the code that can be reused can go.
+Services are made available to the components in 2 ways: dependency injection or injection functions.
+
+Lets refactor one mora time the catalog component and remove the responsibility of managing the cart to a _cartService_:
+
+```
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+// service is just a class
+export class CartService {
+
+  constructor() { }
+}
+
+```
+
+We can see that a service is basically a class. In order to be used within angular ecosystem it needs the _Injectable_ decorator. It was the word the angular team chose to mark classes as services.
+The _providedIn: root_ basically tells angular that this service belongs anywhere in the angular application. Let's refactor the catalog!

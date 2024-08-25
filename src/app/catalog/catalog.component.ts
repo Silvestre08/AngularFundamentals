@@ -9,7 +9,6 @@ import { IProduct } from './product.model';
 export class CatalogComponent {
 products: IProduct[]; // needs to be public to be accessed from the template.
 filter: string= '';
-cart: IProduct[] = [];
 
  constructor() {
   this.products = [
@@ -198,7 +197,5 @@ cart: IProduct[] = [];
   return  {strikeThrough: product.discount >0}
 }
 addToCart(product: IProduct){
-  console.log(`product ${product.name} added to cart`)
-  this.cart.push(product)
 }
 }

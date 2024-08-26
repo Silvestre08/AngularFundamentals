@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IProduct } from './product.model';
+import { CartService } from '../cart.service';
 
 @Component({
   selector: 'bot-catalog',
@@ -9,8 +10,8 @@ import { IProduct } from './product.model';
 export class CatalogComponent {
 products: IProduct[]; // needs to be public to be accessed from the template.
 filter: string= '';
-
- constructor() {
+//  private carSvc: CartService = inject(CartService);
+ constructor(private cartService : CartService) {
   this.products = [
     {
       id: 1,
@@ -197,5 +198,6 @@ filter: string= '';
   return  {strikeThrough: product.discount >0}
 }
 addToCart(product: IProduct){
+  this.cartService.add(product);
 }
 }

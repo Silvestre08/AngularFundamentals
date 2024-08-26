@@ -11,7 +11,7 @@ nvm use 18.10.0
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.0.0 with the command ng new joes-robot-shop.
 Javascript needs a javascript engine in order to run. Most browsers come with one. For development, in a developer machine, we need to install node.js. Node is the engine to run javascript on local machines.
 
-# Creating components
+## Creating components
 
 As a recap, the base unit of angular are the so called components: they allow to define the HTML, CSS and javascript for a page. They can be a page or part of a page.
 
@@ -80,7 +80,7 @@ We implement the hook on the component class by adding the 3 pieces:
 1. Implement the interface
 1. Add the method (do not forget to add the prefix ng).
 
-# Angular template syntax
+## Template syntax and binding
 
 Interpolation is the process of putting expressions into our HTML that angular will evaluate and convert into HTML when it is rendered. Example:
 
@@ -177,7 +177,7 @@ Lets see an example of formatting a price:
 {{ (product.price * (1 - product.discount)) | currency }}
 ```
 
-# Styling Angular Components
+## Styling Angular Components
 
 _styles.css_ is created by default and it is the main CSS file for the entire application. It is where we put in all the styles for our application.
 Example of using 2 html classes in one control: <a class="button bold">
@@ -248,7 +248,7 @@ Like the ngClass we could also transform this into a function.
 
 There CSS frameworks like Saas, bootstrap and Tailwind. Saas is a flag we can setup when starting a new angular project. Cool feature like nested CSS, etc. Out of scope of this training.
 
-# Communication between components
+## Communication between components
 
 Components can contain other components. Communication between components becomes a need, specially when they share same pieces of data.
 This communication is accomplished through a pattern called _one-way dataflow_
@@ -307,7 +307,7 @@ We can send data in the emit method, but we do not needed because in the parent 
 The previous code is from the catalog component, the parent component. We handle the event like we handle all other events, like button clicks. The catalog takes care of adding the item to the cart.
 This refactoring made the catalog component HTML way smaller. In production apps, child components improve radability by a lot.
 
-# Creating Services
+## Creating Services
 
 Services is where the business logic goes. Examples: calculate tax rate service, etc..
 It is where the code that can be reused can go.
@@ -331,3 +331,40 @@ export class CartService {
 
 We can see that a service is basically a class. In order to be used within angular ecosystem it needs the _Injectable_ decorator. It was the word the angular team chose to mark classes as services.
 The _providedIn: root_ basically tells angular that this service belongs anywhere in the angular application. Let's refactor the catalog!
+The cart arrays is moved to the service. But how do we use the service in the component? We need to tell Angular that the catalog component needs an instance of the CartService. Angular will inject the cart service in the component.
+To note: services in angular are singletons by default. It is what we need most of the time because we are managing state. So in the catalog component, we inject the service in the constructor:
+
+```
+ constructor(private cartService : CartService) {}
+```
+
+There is another way to do inject the cart service using the inject function, instead of performing constructor injection:
+
+```
+ private carSvc: CartService = inject(CartService) // the service type;
+```
+
+Constructor syntax is prefered because of tests.
+Our example is very simple. But in real world apps with lots of logic, services are a powerful way of encapsulating business logic that can be reused. COmponents become responsible only for display logic. State management stays in services.
+
+## Fetching and Manipulating data
+
+In production apps, data is in a remote database, in a server somewhere. We fetch the data from the server and we update the data in the server. For that, we need to make http calls.
+
+### Observables
+
+Before digging deep, it is important to understand the concept of observables: a way to deal with asynchronous data.
+Back in the old days, we would request something from a server and the response would be fetched in a callback method. This has problems.
+Then we had _Promises_ and finally obsevables.
+Observables are powerful because they can handle streams of data.
+This is the observable design pattern shining.
+We subscribe to the observable with a callback function that receives the data that is comm=ing through the observables:
+![](doc/observable.png)
+
+We get the observable from Angular itself.
+Similar to .net, instead of the next callback we can also provide callbacks for erros and oncomplete (see observable pattern).
+
+Sometimes we want to modify the data coming from the server before hitting the observable. We can do that with _pipe_ functions.
+They allow us to process data so we can reuse this in all places in code that we subscribe to the observable.
+Summarizing:
+![](doc/dataPipes.png)

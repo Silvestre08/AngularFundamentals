@@ -368,3 +368,104 @@ Sometimes we want to modify the data coming from the server before hitting the o
 They allow us to process data so we can reuse this in all places in code that we subscribe to the observable.
 Summarizing:
 ![](doc/dataPipes.png)
+
+### Get requests
+
+In production environments our app will interact with serves. It will fetch data from servers or ask the server to carry certain actions.
+With this project we configured a little node server running on localhost port 8081.
+We can configure a proxy for all requests to go here by adding a file proxy.conf.json:
+
+```
+{
+    "/api":
+    {
+        "target":"https://localhost:8081",
+        "secure" : false
+    }
+}
+```
+
+In the _angular.json_ file we add for the development environment:
+
+```
+ "development": {
+              "browserTarget": "joes-robot-shop:build:development",
+              "proxyConfig": "src/proxy.conf.json"
+            }
+```
+
+So now when we make a request to something that starts with slash API it will proxy that over to the node server.
+Now, lets refactor the catalog page to fetch the data using an http request.
+It is a best practice to make the http calls inside of a service to share data between different components.
+We can use the htpp client module in order to perform API calls. So we need to reference that module in _app.module.ts_
+We created this product service that will perform the htpp call.
+This product service gets injected in the catalog component:
+
+```
+ ngOnInit(){
+this.productService.getProducts().subscribe(products =>
+  {
+    this.products = products;
+  });
+ }
+```
+
+Bear in mind, that the service returns an observable. Only when we subscribe to the observable the http call gets sent.
+Usually http requests are not made in the constructor but in one of the hooks of the page, kike _ngOnInit_
+
+### Post requests
+
+Post requests send data to the server. In our case, lets refactor the method add to cart. In a real world app this would be a call to the server:
+
+```
+  add(product: IProduct){
+    console.log(`product ${product.name} added to cart`)
+    this.cart.push(product)
+    // the call is made only when subscribe is called
+    // angular converts directly the object to json
+    this.http.post('/api/cart', this.cart).subscribe(cart => {
+
+    });
+  }
+```
+
+## Routing
+
+When we navigate to a URL of an Angular application, the browser loads big chunks of the app into memory.
+When we navigate to a particular URL, the browser simply displays that portion of the app that matches the URL (certain component), instead of loading a whole new page.
+We basically match components, with routes (or URLs).
+We can include routing when we first create the app with the Angular CLI. We did not to learn how it works.
+By default, Angular puts routing in a separate module so we created a new module for the routing.
+We need to import the new module in the app.module.
+We changed the default generated module to look like a routing module:
+
+```
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+const routes: Routes = []
+
+@NgModule({
+  declarations: [],
+  imports: [
+    RouterModule.forRoot(routes)
+  ],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+
+```
+
+Routes are basically URL mappings to components. See the array of routes we provide to the Angular Router module.
+See the special syntax _forRoot_. We are providing the routes for the rro of our application.
+We also have _forChild_. With _forChild_ we would be providing the child routes that apply to that module.
+Because when we navigate to a different page, we want the page to be rendered in the app component, right below the header. App component:
+
+```
+<bot-site-header></bot-site-header>
+<router-outlet></router-outlet>
+```
+
+Putting everything together, we need to add routes to the array in the routing module:
+
+The path property is the root folder for the component. The component is the component to be rendered. The titile is the text displayed in the browser tab.

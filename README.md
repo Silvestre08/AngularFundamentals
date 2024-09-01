@@ -468,4 +468,119 @@ Because when we navigate to a different page, we want the page to be rendered in
 
 Putting everything together, we need to add routes to the array in the routing module:
 
-The path property is the root folder for the component. The component is the component to be rendered. The titile is the text displayed in the browser tab.
+```
+const routes: Routes = [
+  { path: 'home', component: HomeComponent, title: "Home - Joe's Robot Shop" },
+  { path: 'catalog', component: CatalogComponent, title: "Catalog - Joe's Robot Shop" },
+  { path: 'cart', component: CartComponent, title: "Cart - Joe's Robot Shop" },
+  { path: '', redirectTo: '/home', pathMatch: 'prefix' }
+]
+```
+
+The path property is the root folder for the component. The component is the component to be rendered. The title is the text displayed in the browser tab.
+At this point in time when we navigate to the URL only the site header is displayed. We need to add a redirect to the home page in order to display that as the first page on our website:
+
+```
+  {path: '', redirectTo: '/home', pathMatch: 'full' }
+```
+
+The empty path is basically the route of our application. So we configure the redirect to home with path match to full. This path match strategy ensures that this route is only activated when the URL exactly matches the specified path. In this case, an url that matches exactly the roote url.
+There are other strategies like the pathMatch: 'prefix'. This is the default strategy. It matches the beginning of the URL against the route's path. If the URL starts with the specified path, the route is considered a match. Order of the routes in the dictionary matters so if we had the empty route as the fisrt element with a pathMatch prefix, we would ALWAYS end up at the home page. Carefull!!!
+
+In order to add navigation to the site header buttons, we do that with a _routerLink_ directive:
+
+```
+<a routerLink="/catalog">Catalog</a>
+```
+
+We can also navigate programatically:
+
+```
+addToCart(product: IProduct){
+  this.cartService.add(product);
+  this.router.navigate(['/cart']); // Inject angular router in the constructor of catalog component.
+}
+```
+
+The navigate function supports an array of parameter as arguments (similar to router link). This is needed for more complex navigation: think of a navigation to a user page and we need to send an user Id as an argument.
+Lets do an example: from the home page we want to navigate to the catalog page, by clicking on a type of robot part: heads, for example. When we navigate to the catalog page we want the catalog page to filter by the type choose in the home page.
+First, we need to configure the catalog route with a filter like this:
+
+```
+{ path: 'catalog/:filter', component: CatalogComponent, title: "Catalog - Joe's Robot Shop" },
+```
+
+The ":" tells angular this is going to be an URL parameter.
+Nowe in the come page we add the new routes to the Anchor tags:
+
+```
+ <a routerLink="/catalog/Arms" class="part">
+```
+
+Now, in the catalog component we need to inject the _ActivatedRoute_. This will allow us to access the routing when the component inits:
+
+```
+  this.filter = this.route.snapshot.params['filter'];
+```
+
+We access the filter parameter of the component and we set the filter property of the catalog component. So when we navigate from the home component, by clicking in one of the parts we navigate immediatly to a filtered catalog component.
+
+Attention to the snapshot: it is fine for most of the time, but it is initialized when the component is first loaded and it works when we are linking from on component to the other, but not when we link from the component to itself, because the component is already loaded and the snapshot will be stale.
+We can verify that if we try to filter by part within the catalog component, by using the buttons from the top: if we replace the button clicks with router links we would see the url not changing when we filter by a robot part inside the catalog component itself.
+
+```
+ <div class="filters">
+      <a class="button bold" (click)="filter='Heads'">Heads</a>
+// replace to
+       <div class="filters">
+      <a class="button bold" routerLink='/catalog/Heads'>Heads</a>
+```
+
+So instead of using the snapshot, we can use the params object, that is an observable: we subscribe to it and we would be notified every time the param object changes in the URL, in the catalog component:
+
+```
+//oninit
+ this.route.params.subscribe(params =>{
+  this.filter = params['filter'] ??  ''
+  });
+```
+
+For empty parameter we need to use binding syntax, so Angular recognizes the route:
+<a class="button" [routerLink]="['/catalog/', '']">All</a>
+
+When the parameters are not required, query filter parameters are more standard practice than route parameters.
+To do that we remove the filter param from the app.routes.
+Then change the router links back to just _/catalog_. We then add the following:
+
+```
+[queryParams]="{filter: 'Bases'}"
+```
+
+So with that line of code we include the /Bases as query parameter in the URL and we achieve the same result. We do the same on the buttons of the catalog component:
+
+```
+ <a class="button bold" routerLink='/catalog' [queryParams]="{filter: 'Heads'}">Heads</a>
+```
+
+As the last step, in the class file of the catalog component, we replace the route.params with queryParams:
+
+```
+ this.route.queryParams.subscribe(params =>{
+  this.filter = params['filter'] ??  ''
+  });
+```
+
+And we see the URl changing with the query parameters:
+http://localhost:4200/catalog?filter=Heads
+
+We can use a directive _routerLinkActive_ to style active routes, that also works with query params:
+
+```
+  <a class="button bold" routerLink='/catalog' [queryParams]="{filter: 'Heads'}" routerLinkActive="active">Heads</a>
+```
+
+But, by default, this directive works if part of the URL matches the route. Like that, the _all_ button would always be active because it does not have any query params but the route matches partially the URL. So for that we need to bind an options object:
+
+```
+      <a class="button" routerLink='/catalog/' routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">All</a>
+```

@@ -10,7 +10,7 @@
         placeholder="Email Address"
         type="text"
       />
-      <em class="error" *ngIf="email.invalid && password.touched" >Email is required</em>
+      <em class="error" *ngIf="email.invalid && email.touched" >Email is required</em>
       <input #password = "ngModel"
         name="password"
         required

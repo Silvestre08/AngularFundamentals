@@ -654,3 +654,36 @@ In the site header component, we can subscribe to the observalbe logged in user 
 ```
 
 We can use template variables to include validation in the template driven forms. We use the # to define a template variable. We can then access that variable anywhere in the HTML template.
+Lets prevent the user to click the submit button if the email and password are not valid.
+
+First, at the form level we need to add a template variable that references the ngForm directive, that gives us a lot of information about the form.
+Then we add a template variable to each of the input forms, email and password.
+So when we do that Angular generate values for these template variables that change based on the state of the input fields:
+![](doc/validators.png)
+
+As an example: touched becomes true if any of the controls of the form have been touched with the mouse.
+So if a field is required we can setup a validation rule like this:
+
+```
+      <input
+        name="email"
+        #email = "ngModel"
+        required //required attribute
+        [(ngModel)]="credentials.email"
+        placeholder="Email Address"
+        type="text"
+      />
+      <em class="error" *ngIf="email.invalid && email.touched" >Email is required</em>
+```
+
+We show the em element when the email field is invalid (so far has no value) and when it has been already touched in the mouse for greater user experience.
+We can access the ngFrom template variable to assess if the whole form is valid and use it for example to disable the submit button if the form as a whole is still invalid:
+
+```
+    <button type="submit" [disabled]="signInFomr.invalid" class="button cta">
+          Sign In
+        </button>
+```
+
+Angular built in validators:
+![](doc/builtinValidators.png)

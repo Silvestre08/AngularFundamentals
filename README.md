@@ -584,3 +584,73 @@ But, by default, this directive works if part of the URL matches the route. Like
 ```
       <a class="button" routerLink='/catalog/' routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">All</a>
 ```
+
+## Angular Forms
+
+We have two forms for collecting data:
+
+1. Template forms: almost completely defined in the HTML template. More simple but we can end up with a lot of logic in the HTML.
+1. Reactive forms: most of the form and validation defined in the component class. Suitable for more complex forms and are more testable. Out of scope of this module: CHECK HERE.
+
+In order to use template driven forms we need to import that in the _app.module_.
+This section we will add a sing in component for user to log in into our app.
+Square brackets bind in the direction from the component to the template. The parentheses bind from the template to the component.
+The _ngModel_ is a special angular directive that lets us bind in both directions.
+When we use the _ngModel_ directive we need to have a name attribute in our HTML element because _ngModel_ uses the name internally to track the element.
+Example of a two way binding in our sign-in component:
+
+```
+      <input
+        name="email"
+        [(ngModel)]="credentials.email"
+        placeholder="Email Address"
+        type="text"
+      />
+```
+
+There is an Angular directive that we can use in forms like sign-in forms called _ngSubmit_.
+When we have a Button with the type submit we can just bind the component function that needs to be called when the user signs in:
+
+```
+ <form class="form" (ngSubmit)="signIn()">
+```
+
+```
+    <button type="submit"class="button cta">
+```
+
+If the user signs in successfully we want to redirect to the catalog page:
+
+```
+this.userService.signIn(this.credentials).subscribe(
+  {
+    next: ()=> this.router.navigate(['/catalog'])
+  });
+```
+
+We can enrich the application further. When a login failed we can show an error message, using the ngIf directive:
+
+```
+      <div class="signInError" *ngIf="signInError" > // set signInError to true if login failed by handling the error: delegate of the observable
+        sign-in failed. Please try again
+      </div>
+```
+
+In the site header component, we can subscribe to the observalbe logged in user and if we get a user we can hide the register and sign in menus and just show a profile picture:
+
+```
+    <div class="right" *ngIf="!user"> // if we have a user property different than null
+      <a routerLink="/sign-in">Sign In</a>
+      <a href="" class="cta">Register</a>
+    </div>
+    <div class="right" *ngIf="user">
+      <div>
+        <img src="/assets/images/profile.png" alt="profile" (click)=" toggleSignOut()" />
+        <div class="sign-out" *ngIf="showSignOutMenu">
+          <button (click)="signOut()">
+            Sign Out
+          </button>
+        </div>
+```
+
+We can use template variables to include validation in the template driven forms. We use the # to define a template variable. We can then access that variable anywhere in the HTML template.

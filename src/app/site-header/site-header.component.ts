@@ -1,10 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { IUser } from '../sign-in/user.model';
+import { UserService } from '../sign-in/user-service.service';
 
 @Component({
   selector: 'bot-site-header',
   templateUrl: './site-header.component.html',
   styleUrls: ['./site-header.component.css']
 })
-export class SiteHeaderComponent {
+export class SiteHeaderComponent implements OnInit {
+user: IUser | null = null;
+showSignOutMenu: boolean = false;
 
+constructor(private userSerivce: UserService){
+
+}
+  ngOnInit(): void {
+    this.userSerivce.getUser().subscribe(user=>
+      {
+        this.user = user;
+      })
+  }
+
+  toggleSignOut(){
+    this.showSignOutMenu = !this.showSignOutMenu;
+  }
+
+  signOut(){
+    this.userSerivce.signOut();
+    this.showSignOutMenu = false;
+  }
 }

@@ -687,3 +687,39 @@ We can access the ngFrom template variable to assess if the whole form is valid 
 
 Angular built in validators:
 ![](doc/builtinValidators.png)
+How to combine validator and how to control which message to be displayed? We add more validators simply by adding more attributes to the html elements like _email_. Angular then provides an error object that will contain all validation errors, if they exist. Note: use safe navigation to this error objects:
+
+```
+      <em class="error" *ngIf="email.errors?.['required'] && email.touched" >Email is required</em>
+      <em class="error" *ngIf="email.errors?.['email'] && email.touched" >Email is invalid/em> // display error for the 'email' validation
+```
+
+Angular pays attention to the type attribute of the HTML elements. If we put type as number, the user input will be converted to a number for example. Check the template-forms-controls component.
+Use ngValue to preserve the data type of the bound value with options elements.
+Check more forms and models in other courses!.
+
+## Modules
+
+Modules are an organizational container within an angular application. What is inside of that container?
+
+1. Components
+1. Services
+1. Routes
+1. Custom pipes
+
+These parts are grouped together in a logical way in the scope of an application. Modules can import other modules like we've seen.Every application has a main module. Ours is app.module.ts that contains all components that we created so far. Services belong to the module of the components that import them.
+Modules are optional. So why use them? It is a subjective topic but applications are clearer to understand if we have modules.
+Modules were the default way to build applications, so a lot of apps out there use modules.
+We have created our routing modules: it only contains routes. This module imports and exports angular _RouterModule_. Because we export it, then the features of the RouterModule are available to us in the main module: like the routerLink directive.
+
+Other types of modules are feature modules: components, pipes,etfc..
+For demonstration purposes we are going to create a user module. It will include everything inside the user folder: sign in component and template-form controls.
+We use the command: _ng generate module user_. It generates a module file for us. Im that file we import our components and all the dependencies like Forms module and Anggular module. This is something to pay attention when refactoring into modules.
+Modules keep the app organized and avoid big app.module files.
+There is another purpose for modules: lazy loading.
+
+## Execute tests
+
+npm test
+npm run e2e
+Check here for unit test deep dive.

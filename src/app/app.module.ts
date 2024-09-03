@@ -10,7 +10,7 @@ import { SiteHeaderComponent } from './site-header/site-header.component';
 import { ProductDetailsComponent } from './product-details/product-details.component';
 import { HttpClientModule } from '@angular/common/http';
 import { CartComponent } from './cart/cart.component';
-import { SignInComponent } from './sign-in/sign-in.component';
+import { UserModule } from './user/user.module';
 
 
 @NgModule({
@@ -21,10 +21,9 @@ import { SignInComponent } from './sign-in/sign-in.component';
     SiteHeaderComponent,
     ProductDetailsComponent,
     CartComponent,
-    SignInComponent
   ],
   imports: [
-    BrowserModule, HttpClientModule, AppRoutingModule, FormsModule
+    BrowserModule, HttpClientModule, AppRoutingModule, FormsModule, UserModule
   ],
   providers: [],
   bootstrap: [AppComponent]
